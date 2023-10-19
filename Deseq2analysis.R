@@ -1,4 +1,14 @@
-# deseq2 with only NP_low
+'''
+Filename: Create_unbiased_heatmap.py
+Author: Joel Klein
+Date: 2022-07--03
+Description: This script creates a heatmap from a deseq2 output file and an annotation file with gene names and
+creates a heatmap of the log2foldchange values.
+License: CC-BY 4.0 International
+Contact: joel.klein@wur.nl
+'''
+
+# deseq2 analysis
 
 library("tximport")
 library("tximportData")
@@ -12,16 +22,16 @@ library("pcaExplorer")
 
 
 # DEG NSP knockouts
-setwd("/Users/joel/Documents/Students/nick/RNA-seq/")
+setwd("/path/toworkdir/")
 
 #assigning location of sample information and kallisto output
-sample_id <- dir("/Users/joel/Documents/Students/nick/RNA-seq/kal_out")
+sample_id <- dir("/path/to/kallistodirectory/kal_out")
 sample_id
-kall_dirs <- sapply(sample_id, function(id) file.path("/Users/joel/Documents/Students/nick/RNA-seq/kal_out", id))
+kall_dirs <- sapply(sample_id, function(id) file.path("/path/to/kallistodirectory/kal_out", id))
 kall_dirs
 
 #generate table of sample information
-s2c <- read.csv("/Users/joel/Documents/Students/nick/RNA-seq/sample_info_2.txt")
+s2c <- read.csv("/path/to/sample_info_2.txt")
 s2c <- dplyr::select(s2c, sample, genotype, NP, replication)
 s2c <- s2c[order(s2c$sample), ]
 s2c <- dplyr::mutate(s2c, path = kall_dirs)
@@ -60,6 +70,7 @@ for (g in genotypes) {
 lfc.table <- sapply(res, function(x) x$log2FoldChange)
 rownames(lfc.table) <- rownames(res[[1]])
 print(lfc.table)
+# write the LFC table to file
 write.table(cbind(Gene_id = rownames(lfc.table), lfc.table), file = "NSP2_NlowPhigh_LFC.tsv", sep = "\t", row.names = FALSE)
 
 
@@ -102,6 +113,6 @@ pca_plot <- ggplot(pca_df, aes(x = PC1, y = PC2, color = genotype, fill = genoty
 
 # Remove the legend title
 pca_plot <- pca_plot + guides(color = guide_legend(title = NULL), fill = guide_legend(title = NULL))
-
+# save figure to png
 ggsave("pca_plotNlowPhigh.png", pca_plot, width = 8, height = 6, dpi = 300)
 
